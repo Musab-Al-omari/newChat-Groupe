@@ -11,15 +11,17 @@ const io = socket(server,{
         methods:['GET','POST']
     }
 });
-app.use(cors())
-
+app.use(cors());
 const users = {};
-
 const socketToRoom = {};
+ 
 
+app.get('/',(req,res)=>{
+    res.send('serverRunning...')
+})
 io.on('connection', socket => {
     socket.on("join room", roomID => {
-        console.log(roomID);
+        console.log(users);
         if (users[roomID]) {
             const length = users[roomID].length;
             if (length === 4) {
