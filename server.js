@@ -2,9 +2,16 @@ require('dotenv').config();
 const express = require("express");
 const http = require("http");
 const app = express();
+const cors=require('cors')
 const server = http.createServer(app);
 const socket = require("socket.io");
-const io = socket(server);
+const io = socket(server,{
+    cors:{
+        origin:"*",
+        methods:['GET','POST']
+    }
+});
+app.use(cors())
 
 const users = {};
 
@@ -12,6 +19,7 @@ const socketToRoom = {};
 
 io.on('connection', socket => {
     socket.on("join room", roomID => {
+        console.log(roomID);
         if (users[roomID]) {
             const length = users[roomID].length;
             if (length === 4) {
