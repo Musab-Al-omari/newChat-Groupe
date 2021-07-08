@@ -21,9 +21,10 @@ const Video = (props) => {
     const ref = useRef();
 
     useEffect(() => {
+        // this is dose not happen unless there are stream waiting to be answered
         props.peer.on("stream", stream => {
             ref.current.srcObject = stream;
-        })
+        });
     }, []);
 
     return (
@@ -45,10 +46,14 @@ const Room = (props) => {
     const roomID = props.match.params.roomID;
 
     useEffect(() => {
-        socketRef.current = io.connect('https://new-medio1.herokuapp.com');
+        // socketRef.current = io.connect('https://new-medio1.herokuapp.com');
+        socketRef.current = io.connect('http://localhost:8000');
         navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: true }).then(stream => {
             userVideo.current.srcObject = stream;
+
             socketRef.current.emit("join room", roomID);
+
+
             socketRef.current.on("all users", users => {
                 const peers = [];
                 users.forEach(userID => {
@@ -76,6 +81,24 @@ const Room = (props) => {
                 const item = peersRef.current.find(p => p.peerID === payload.id);
                 item.peer.signal(payload.signal);
             });
+
+            socketRef.current.on("reload the page", id => {
+                
+                peersRef.current= peersRef.current.filter(obj=>{
+                    if(obj.peerID ===id){
+                      return  obj.peer.destroy();
+                        
+                    }else{
+                        return obj
+                    }  
+                })
+                setPeers(peers);
+                console.log(peersRef);
+            });
+
+
+
+
         })
     }, []);
 

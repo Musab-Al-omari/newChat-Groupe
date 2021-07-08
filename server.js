@@ -19,11 +19,13 @@ const socketToRoom = {};
 app.get('/',(req,res)=>{
     res.send('serverRunning...')
 })
+
 io.on('connection', socket => {
     socket.on("join room", roomID => {
-        console.log(users);
+        // console.log(Object.keys(users));
         if (users[roomID]) {
             const length = users[roomID].length;
+            console.log(length);
             if (length === 4) {
                 socket.emit("room full");
                 return;
@@ -53,6 +55,9 @@ io.on('connection', socket => {
             room = room.filter(id => id !== socket.id);
             users[roomID] = room;
         }
+        
+        socket.broadcast.emit('reload the page',socket.id)
+        
     });
 
 });
