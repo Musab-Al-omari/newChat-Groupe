@@ -1,0 +1,50 @@
+.card {
+  display: flex;
+  margin: 30px;
+  min-height: 30rem;
+  width: 100%;
+  flex-direction: column;
+}
+
+.render-chat {
+  height: 400px;
+  width: 100%;
+  border-radius: 5px;
+  padding: 20px;
+  box-shadow: 0px 3px 24px -8px rgba(0, 0, 0, 0.75);
+  overflow:auto
+}
+
+form {
+  display: flex;
+  width: 100%;
+  flex-direction: column-reverse;
+  border-radius: 5px;
+  padding: 20px;
+  box-shadow: 0px 3px 24px -8px rgba(0, 0, 0, 0.75);
+}
+
+.name-field {
+  /* margin-bottom: 40px; */
+  width: 50%;
+}
+.message-field{
+
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px;
+  background: transparent;
+  border-radius: 5px;
+}
+
+
+
+span {
+  color: black;
+}
+.rowInput{
+  display: flex;
+  flex-direction: row;
+}

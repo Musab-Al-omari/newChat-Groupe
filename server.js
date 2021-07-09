@@ -2,30 +2,30 @@ require('dotenv').config();
 const express = require("express");
 const http = require("http");
 const app = express();
-const cors=require('cors')
+const cors = require('cors')
 const server = http.createServer(app);
 const socket = require("socket.io");
-const io = socket(server,{
-    cors:{
-        origin:"*",
-        methods:['GET','POST']
+const io = socket(server, {
+    cors: {
+        origin: "*",
+        methods: ['GET', 'POST']
     }
 });
 app.use(cors());
-const users = {};
-const socketToRoom = {};
- 
 
-app.get('/',(req,res)=>{
+app.get('/', (req, res) => {
     res.send('serverRunning...')
 })
-
+const users = {};
+const socketToRoom = {};
 io.on('connection', socket => {
+    socket.on('message', ({ name, message }) => {
+        io.emit('message', { name, message })
+    });
     socket.on("join room", roomID => {
-        // console.log(Object.keys(users));
         if (users[roomID]) {
             const length = users[roomID].length;
-            console.log(length);
+
             if (length === 4) {
                 socket.emit("room full");
                 return;
@@ -36,8 +36,11 @@ io.on('connection', socket => {
         }
         socketToRoom[socket.id] = roomID;
         const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
-
+        console.log(usersInThisRoom);
         socket.emit("all users", usersInThisRoom);
+
+
+        
     });
 
     socket.on("sending signal", payload => {
@@ -55,9 +58,9 @@ io.on('connection', socket => {
             room = room.filter(id => id !== socket.id);
             users[roomID] = room;
         }
-        
-        socket.broadcast.emit('reload the page',socket.id)
-        
+
+        socket.broadcast.emit('reload the page', socket.id)
+
     });
 
 });

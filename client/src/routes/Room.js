@@ -2,15 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import Peer from "simple-peer";
 import styled from "styled-components";
+import Chat from './Chat'
+import "./Room.css";
 
-const Container = styled.div`
-    padding: 20px;
-    display: flex;
-    height: 100vh;
-    width: 90%;
-    margin: auto;
-    flex-wrap: wrap;
-`;
 
 const StyledVideo = styled.video`
     height: 40%;
@@ -52,17 +46,16 @@ const Room = (props) => {
             userVideo.current.srcObject = stream;
 
             socketRef.current.emit("join room", roomID);
-
-
             socketRef.current.on("all users", users => {
                 const peers = [];
+                console.log(users);
                 users.forEach(userID => {
                     const peer = createPeer(userID, socketRef.current.id, stream);
                     peersRef.current.push({
                         peerID: userID,
                         peer,
                     })
-                    peers.push(peer);
+                    peers.push({peerID: userID,peer});
                 })
                 setPeers(peers);
             })
@@ -74,7 +67,8 @@ const Room = (props) => {
                     peer,
                 })
 
-                setPeers(users => [...users, peer]);
+              const  peerObj={peerID: payload.callerID,peer}
+                setPeers(users => [...users, peerObj]);
             });
 
             socketRef.current.on("receiving returned signal", payload => {
@@ -83,21 +77,15 @@ const Room = (props) => {
             });
 
             socketRef.current.on("reload the page", id => {
-                
-                peersRef.current= peersRef.current.filter(obj=>{
-                    if(obj.peerID ===id){
-                      return  obj.peer.destroy();
-                        
-                    }else{
-                        return obj
-                    }  
-                })
-                setPeers(peers);
-                console.log(peersRef);
+                const leftPeer = peersRef.current.find(obj => obj.peerID === id)
+                if (leftPeer) {
+                    leftPeer.peer.destroy();
+                }
+              
+            const newPeers = peersRef.current.filter(obj =>obj.peerID!==id)
+                peersRef.current=newPeers
+                setPeers(newPeers);
             });
-
-
-
 
         })
     }, []);
@@ -133,14 +121,20 @@ const Room = (props) => {
     }
 
     return (
-        <Container>
-            <StyledVideo muted ref={userVideo} autoPlay playsInline />
-            {peers.map((peer, index) => {
-                return (
-                    <Video key={index} peer={peer} />
-                );
-            })}
-        </Container>
+        <>
+            <div className="Container">
+                <div className="videoContainer">
+                <StyledVideo muted ref={userVideo} autoPlay playsInline />
+                {peers.map((peer) => {
+                    return (
+                        <Video key={peer.peerID} peer={peer.peer} />
+                    );
+                })}
+                </div>
+                <Chat />
+            </div>
+           
+        </>
     );
 };
 
