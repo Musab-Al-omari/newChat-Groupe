@@ -1,17 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
 import TextField from "@material-ui/core/TextField";
 import io from "socket.io-client";
-
 import "./Chat.css";
-function Chat() {
+function Chat({ roomID }) {
+  
+
+  
   const [state, setState] = useState({ message: "", name: "" });
   const [chat, setChat] = useState([]);
-
   const socketRef = useRef();
+
+  // useEffect(() => {
+  //   socketRef.current = io.connect("http://localhost:8000");
+  //   socketRef.current.emit("chatRoom",roomID );
+  // }, []);
 
   useEffect(() => {
     socketRef.current = io.connect("http://localhost:8000");
-
+    socketRef.current.emit("chatRoom",roomID );
     socketRef.current.on("message", ({ name, message }) => {
       setChat([...chat, { name, message }]);
     });
@@ -21,8 +27,11 @@ function Chat() {
   const onTextChange = (e) => {
     setState({ ...state, [e.target.name]: e.target.value });
   };
+
+
   const onMessageSubmit = (e) => {
     const { name, message } = state;
+    console.log(message);
     socketRef.current.emit("message", { name, message });
     e.preventDefault();
     setState({ message: "", name });
@@ -49,9 +58,9 @@ function Chat() {
         <button>Send Message</button>
 
         <div className="rowInput">
-
           <div className="name-field">
             <TextField
+              fullWidth
               name="name"
               onChange={(e) => onTextChange(e)}
               value={state.name}
@@ -60,8 +69,9 @@ function Chat() {
             />
           </div>
 
-          <div className="message-field" >
+          <div className="message-field">
             <TextField
+              fullWidth
               name="message"
               onChange={(e) => onTextChange(e)}
               value={state.message}
@@ -69,7 +79,7 @@ function Chat() {
               variant="filled"
               label="Message"
             />
-          </div> 
+          </div>
         </div>
       </form>
     </div>

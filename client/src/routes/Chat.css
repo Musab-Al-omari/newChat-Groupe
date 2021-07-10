@@ -26,9 +26,10 @@ form {
 
 .name-field {
   /* margin-bottom: 40px; */
-  width: 50%;
+  width: 25%;
 }
 .message-field{
+  width: 100%;
 
 }
 

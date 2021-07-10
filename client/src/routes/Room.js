@@ -4,7 +4,7 @@ import Peer from "simple-peer";
 import styled from "styled-components";
 import Chat from './Chat'
 import "./Room.css";
-
+import "./Chat.css";
 
 const StyledVideo = styled.video`
     height: 40%;
@@ -22,7 +22,7 @@ const Video = (props) => {
     }, []);
 
     return (
-        <StyledVideo playsInline autoPlay ref={ref} />
+        <StyledVideo controls playsInline autoPlay ref={ref} />
     );
 }
 
@@ -38,7 +38,7 @@ const Room = (props) => {
     const userVideo = useRef();
     const peersRef = useRef([]);
     const roomID = props.match.params.roomID;
-
+   
     useEffect(() => {
         // socketRef.current = io.connect('https://new-medio1.herokuapp.com');
         socketRef.current = io.connect('http://localhost:8000');
@@ -46,18 +46,20 @@ const Room = (props) => {
             userVideo.current.srcObject = stream;
 
             socketRef.current.emit("join room", roomID);
+            
             socketRef.current.on("all users", users => {
+                console.log('users',users);
                 const peers = [];
-                console.log(users);
                 users.forEach(userID => {
                     const peer = createPeer(userID, socketRef.current.id, stream);
                     peersRef.current.push({
                         peerID: userID,
                         peer,
                     })
-                    peers.push({peerID: userID,peer});
+                    peers.push({ peerID: userID, peer });
                 })
                 setPeers(peers);
+
             })
 
             socketRef.current.on("user joined", payload => {
@@ -67,7 +69,7 @@ const Room = (props) => {
                     peer,
                 })
 
-              const  peerObj={peerID: payload.callerID,peer}
+                const peerObj = { peerID: payload.callerID, peer }
                 setPeers(users => [...users, peerObj]);
             });
 
@@ -76,16 +78,19 @@ const Room = (props) => {
                 item.peer.signal(payload.signal);
             });
 
-            socketRef.current.on("reload the page", id => {
+            
+            socketRef.current.on('userLeft', id => {
                 const leftPeer = peersRef.current.find(obj => obj.peerID === id)
+                console.log(id);
                 if (leftPeer) {
                     leftPeer.peer.destroy();
                 }
-              
-            const newPeers = peersRef.current.filter(obj =>obj.peerID!==id)
-                peersRef.current=newPeers
-                setPeers(newPeers);
-            });
+
+                const newPeers = peersRef.current.filter(obj => obj.peerID !== id)
+                peersRef.current = newPeers
+                setPeers(()=>[...newPeers]);
+
+            })
 
         })
     }, []);
@@ -124,16 +129,18 @@ const Room = (props) => {
         <>
             <div className="Container">
                 <div className="videoContainer">
-                <StyledVideo muted ref={userVideo} autoPlay playsInline />
-                {peers.map((peer) => {
-                    return (
-                        <Video key={peer.peerID} peer={peer.peer} />
-                    );
-                })}
+                    <StyledVideo controls muted ref={userVideo} autoPlay playsInline />
+                    {peers.map((peer) => {
+                        console.log('peers', peers);
+                        return (
+                            <Video controls key={peer.peerID} peer={peer.peer} />
+                        );
+                    })}
                 </div>
-                <Chat />
+                <Chat roomID={roomID}/>
+                
             </div>
-           
+
         </>
     );
 };
