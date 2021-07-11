@@ -19,7 +19,7 @@ const Video = (props) => {
         props.peer.on("stream", stream => {
             ref.current.srcObject = stream;
         });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
@@ -44,7 +44,7 @@ const Room = (props) => {
     //         userVideo.current.srcObject = stream;
 
     //         socketRef.current.emit('startShare')
-           
+
     //         socketRef.current.on('all myUsers', (users) => {
     //             console.log('users', users[roomID]);
     //             const peers = [];
@@ -92,15 +92,20 @@ const Room = (props) => {
 
 
             socketRef.current.on("user joined", payload => {
+                const item = peersRef.current.find(p => p.peerID === payload.callerID);
+                if (!item) {
+                    const peer = addPeer(payload.signal, payload.callerID, stream);
+                    peersRef.current.push({
+                        peerID: payload.callerID,
+                        peer,
+                    })
+                    const peerObj = { peerID: payload.callerID, peer }
+                    setPeers(users => [...users, peerObj]);
+                }
 
-                const peer = addPeer(payload.signal, payload.callerID, stream);
-                peersRef.current.push({
-                    peerID: payload.callerID,
-                    peer,
-                })
-                const peerObj = { peerID: payload.callerID, peer }
+                
 
-                setPeers(users => [...users, peerObj]);
+                
             });
 
             socketRef.current.on("receiving returned signal", payload => {
@@ -111,7 +116,7 @@ const Room = (props) => {
 
             socketRef.current.on('userLeft', id => {
                 const leftPeer = peersRef.current.find(obj => obj.peerID === id)
-            
+
                 if (leftPeer) {
                     leftPeer.peer.destroy();
                 }
@@ -123,7 +128,7 @@ const Room = (props) => {
             })
 
         })
-          // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
 
