@@ -23,7 +23,6 @@ const socketToRoom = {};
 io.on('connection', socket => {
 
     socket.on("join room", roomID => {
-      
         socket.join(roomID)
         if (users[roomID]) {
             const length = users[roomID].length;
@@ -38,7 +37,13 @@ io.on('connection', socket => {
         socketToRoom[socket.id] = roomID;
         const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
 
+
         socket.emit("all users", usersInThisRoom);
+
+        socket.on('startShare', () => {
+            socket.emit("all myUsers", users);
+
+        })
 
         socket.on("sending signal", payload => {
             io.to(payload.userToSignal).emit('user joined', { signal: payload.signal, callerID: payload.callerID });
@@ -60,19 +65,13 @@ io.on('connection', socket => {
 
         });
 
-    
+
 
     })
-    // socket.on('message', ({ name, message }) => {
-    //     io.emit('message', { name, message })
-    // });
 
     socket.on('chatRoom', roomID => {
-
         socket.join(roomID);
-
         socket.emit('userId-Joined');
-
         socket.on('message', ({ name, message }) => {
             console.log(message);
             io.to(roomID).emit('message', { name, message })

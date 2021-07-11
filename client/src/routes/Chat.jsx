@@ -2,32 +2,38 @@ import React, { useEffect, useRef, useState } from "react";
 import TextField from "@material-ui/core/TextField";
 import io from "socket.io-client";
 import "./Chat.css";
-function Chat({ roomID }) {
-  
 
-  
+function Chat({ roomID }) {
   const [state, setState] = useState({ message: "", name: "" });
   const [chat, setChat] = useState([]);
+  const [color, setColor] = useState('');
+
   const socketRef = useRef();
 
   // useEffect(() => {
   //   socketRef.current = io.connect("http://localhost:8000");
   //   socketRef.current.emit("chatRoom",roomID );
   // }, []);
+  var r = () => (Math.random() * 256) >> 0;
+  var colors = `rgb(${r()}, ${r()}, ${r()})`;
 
+  
+ 
   useEffect(() => {
-    socketRef.current = io.connect("http://localhost:8000");
-    socketRef.current.emit("chatRoom",roomID );
+    setColor(colors)
+    // socketRef.current = io.connect("http://localhost:8000");
+    socketRef.current = io.connect('https://new-medio1.herokuapp.com');
+    socketRef.current.emit("chatRoom", roomID);
     socketRef.current.on("message", ({ name, message }) => {
       setChat([...chat, { name, message }]);
     });
     return () => socketRef.current.disconnect();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat]);
 
   const onTextChange = (e) => {
     setState({ ...state, [e.target.name]: e.target.value });
   };
-
 
   const onMessageSubmit = (e) => {
     const { name, message } = state;
@@ -40,7 +46,7 @@ function Chat({ roomID }) {
   const renderChat = () => {
     return chat.map(({ name, message }, index) => (
       <div key={index}>
-        <h3>
+        <h3 style={{ backgroundColor: color }}>
           {name}: <span>{message}</span>
         </h3>
       </div>
@@ -50,7 +56,7 @@ function Chat({ roomID }) {
   return (
     <div className="card">
       <div className="render-chat">
-        <h1>Chat Log</h1>
+        <h1>LTUC Canvas Chat</h1>
         {renderChat()}
       </div>
 

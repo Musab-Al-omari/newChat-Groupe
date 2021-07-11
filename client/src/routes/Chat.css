@@ -2,7 +2,7 @@
   display: flex;
   margin: 30px;
   min-height: 30rem;
-  width: 100%;
+  width: 40%;
   flex-direction: column;
 }
 
@@ -45,6 +45,9 @@ button {
 span {
   color: black;
 }
+/* h3{
+  color: blue;
+} */
 .rowInput{
   display: flex;
   flex-direction: row;
