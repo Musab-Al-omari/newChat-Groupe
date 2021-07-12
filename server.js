@@ -54,7 +54,7 @@ io.on('connection', socket => {
         });
 
         socket.on('disconnect', () => {
-            console.log('socket.id', socket.id);
+            // console.log('socket.id', socket.id);
             const roomID = socketToRoom[socket.id];
             let room = users[roomID];
             if (room) {
@@ -66,6 +66,18 @@ io.on('connection', socket => {
 
 
         socket.on('amountOnClick', (myid) => {
+            console.log(myid);
+            const roomID = socketToRoom[myid];
+            let room = users[roomID];
+            if (room) {
+                room = room.filter(id => id !== myid);
+                users[roomID] = room;
+            }
+            socket.emit('userLeft', myid)
+        });
+
+        socket.on('close', (myid) => {
+            
             const roomID = socketToRoom[myid];
             let room = users[roomID];
             if (room) {
