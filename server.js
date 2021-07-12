@@ -40,15 +40,15 @@ io.on('connection', socket => {
 
         socket.emit("all users", usersInThisRoom);
 
-        socket.on('startShare', () => {
-            socket.emit("all myUsers", users);
+        // socket.on('startShare', () => {
+        //     socket.emit("all myUsers", users);
 
-        })
+        // })
 
         socket.on("sending signal", payload => {
             io.to(payload.userToSignal).emit('user joined', { signal: payload.signal, callerID: payload.callerID });
         });
-
+        
         socket.on("returning signal", payload => {
             io.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: socket.id });
         });
@@ -62,7 +62,17 @@ io.on('connection', socket => {
                 users[roomID] = room;
             }
             socket.broadcast.emit('userLeft', socket.id)
+        });
 
+
+        socket.on('amountOnClick', (myid) => {
+            const roomID = socketToRoom[myid];
+            let room = users[roomID];
+            if (room) {
+                room = room.filter(id => id !== myid);
+                users[roomID] = room;
+            }
+            socket.broadcast.emit('userLeft', myid)
         });
 
 

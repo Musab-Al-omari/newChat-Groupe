@@ -38,7 +38,9 @@ const Room = (props) => {
     const socketRef = useRef();
     const userVideo = useRef();
     const peersRef = useRef([]);
+
     const roomID = props.match.params.roomID;
+
     // function share() {
     //     navigator.mediaDevices.getDisplayMedia({ video: videoConstraints, audio: true }).then(stream => {
     //         userVideo.current.srcObject = stream;
@@ -67,8 +69,8 @@ const Room = (props) => {
     //         })
     //     })
     // }
-
     useEffect(() => {
+        
         socketRef.current = io.connect('https://new-medio1.herokuapp.com');
         // socketRef.current = io.connect('http://localhost:8000');
         navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: true }).then(stream => {
@@ -148,7 +150,6 @@ const Room = (props) => {
     }
 
     function addPeer(incomingSignal, callerID, stream) {
-
         const peer = new Peer({
             initiator: false,
             trickle: false,

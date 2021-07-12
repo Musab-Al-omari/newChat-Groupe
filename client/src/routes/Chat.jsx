@@ -22,7 +22,7 @@ function Chat({ roomID }) {
   useEffect(() => {
     setColor(colors)
     // socketRef.current = io.connect("http://localhost:8000");
-    socketRef.current = io.connect('https://new-medio1.herokuapp.com');
+    socketRef.current = io.connect('https://igotitiam.herokuapp.com');
     socketRef.current.emit("chatRoom", roomID);
     socketRef.current.on("message", ({ name, message }) => {
       setChat([...chat, { name, message }]);
@@ -56,7 +56,7 @@ function Chat({ roomID }) {
   return (
     <div className="card">
       <div className="render-chat">
-        <h1>LTUC Canvas Chat</h1>
+        <h1>LTUC Canvas </h1>
         {renderChat()}
       </div>
 
